@@ -7,10 +7,10 @@ import * as Popover from '@radix-ui/react-popover';
 import { clsx } from 'clsx';
 import debounce from 'lodash.debounce';
 import { ArrowRight, ChevronDown, Search, SearchIcon, ShoppingBag, User } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import React, {
   forwardRef,
   Ref,
+  startTransition,
   useActionState,
   useCallback,
   useEffect,
@@ -27,7 +27,7 @@ import { Logo } from '@/vibes/soul/primitives/logo';
 import { Price } from '@/vibes/soul/primitives/price-label';
 import { ProductCard } from '@/vibes/soul/primitives/product-card';
 import { Link } from '~/components/link';
-import { usePathname, useRouter } from '~/i18n/routing';
+import { usePathname } from '~/i18n/routing';
 
 interface Link {
   label: string;
@@ -75,6 +75,7 @@ export type SearchResult =
       links: Array<{ label: string; href: string }>;
     };
 
+type LocaleAction = Action<SubmissionResult | null, FormData>;
 type CurrencyAction = Action<SubmissionResult | null, FormData>;
 type SearchAction<S extends SearchResult> = Action<
   {
@@ -96,6 +97,7 @@ interface Props<S extends SearchResult> {
   linksPosition?: 'center' | 'left' | 'right';
   locales?: Locale[];
   activeLocaleId?: string;
+  localeAction?: LocaleAction;
   currencies?: Currency[];
   activeCurrencyId?: string;
   currencyAction?: CurrencyAction;
@@ -269,6 +271,7 @@ export const Navigation = forwardRef(function Navigation<S extends SearchResult>
     mobileLogoHeight = 40,
     linksPosition = 'center',
     activeLocaleId,
+    localeAction,
     locales,
     currencies,
     activeCurrencyId,
@@ -561,8 +564,9 @@ export const Navigation = forwardRef(function Navigation<S extends SearchResult>
           </Link>
 
           {/* Locale / Language Dropdown */}
-          {locales && locales.length > 1 ? (
-            <LocaleSwitcher
+          {locales && locales.length > 1 && localeAction ? (
+            <LocaleForm
+              action={localeAction}
               activeLocaleId={activeLocaleId}
               // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
               locales={locales as [Locale, Locale, ...Locale[]]}
@@ -820,43 +824,26 @@ function SearchResults({
   );
 }
 
-const useSwitchLocale = () => {
-  const pathname = usePathname();
-  const router = useRouter();
-  const params = useParams();
-
-  return useCallback(
-    (locale: string) =>
-      router.push(
-        // @ts-expect-error -- TypeScript will validate that only known `params`
-        // are used in combination with a given `pathname`. Since the two will
-        // always match for the current route, we can skip runtime checks.
-        { pathname, params },
-        { locale },
-      ),
-    [pathname, params, router],
-  );
-};
-
-function LocaleSwitcher({
+function LocaleForm({
+  action,
   locales,
   activeLocaleId,
 }: {
   activeLocaleId?: string;
+  action: LocaleAction;
   locales: [Locale, ...Locale[]];
 }) {
+  const [lastResult, formAction] = useActionState(action, null);
   const activeLocale = locales.find((locale) => locale.id === activeLocaleId);
-  const [isPending, startTransition] = useTransition();
-  const switchLocale = useSwitchLocale();
+
+  useEffect(() => {
+    if (lastResult?.error) console.log(lastResult.error);
+  }, [lastResult?.error]);
 
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        className={clsx(
-          'flex items-center gap-1 text-xs uppercase transition-opacity [&:disabled]:opacity-30',
-          navButtonClassName,
-        )}
-        disabled={isPending}
+        className={clsx('flex items-center gap-1 text-xs uppercase', navButtonClassName)}
       >
         {activeLocale?.id ?? locales[0].id}
         <ChevronDown size={16} strokeWidth={1.5} />
@@ -877,7 +864,15 @@ function LocaleSwitcher({
                 },
               )}
               key={id}
-              onSelect={() => startTransition(() => switchLocale(id))}
+              onSelect={() => {
+                // eslint-disable-next-line @typescript-eslint/require-await
+                startTransition(async () => {
+                  const formData = new FormData();
+
+                  formData.append('id', id);
+                  formAction(formData);
+                });
+              }}
             >
               {label}
             </DropdownMenu.Item>
@@ -897,7 +892,6 @@ function CurrencyForm({
   action: CurrencyAction;
   currencies: [Currency, ...Currency[]];
 }) {
-  const [isPending, startTransition] = useTransition();
   const [lastResult, formAction] = useActionState(action, null);
   const activeCurrency = currencies.find((currency) => currency.id === activeCurrencyId);
 
@@ -908,11 +902,7 @@ function CurrencyForm({
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        className={clsx(
-          'flex items-center gap-1 text-xs uppercase transition-opacity [&:disabled]:opacity-30',
-          navButtonClassName,
-        )}
-        disabled={isPending}
+        className={clsx('flex items-center gap-1 text-xs uppercase', navButtonClassName)}
       >
         {activeCurrency?.label ?? currencies[0].label}
         <ChevronDown size={16} strokeWidth={1.5} />
@@ -937,7 +927,6 @@ function CurrencyForm({
                 // eslint-disable-next-line @typescript-eslint/require-await
                 startTransition(async () => {
                   const formData = new FormData();
-
                   formData.append('id', currency.id);
                   formAction(formData);
                 });
