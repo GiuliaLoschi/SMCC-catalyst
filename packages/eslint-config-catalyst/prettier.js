@@ -2,7 +2,12 @@
 const config = {
   extends: ['plugin:prettier/recommended'],
   rules: {
-    'prettier/prettier': ['warn'],
+    'prettier/prettier': [
+      'warn',
+      {
+        "endOfLine": "auto"
+      }
+    ],
   }
 };
 
