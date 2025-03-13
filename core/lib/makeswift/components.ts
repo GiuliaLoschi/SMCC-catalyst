@@ -12,8 +12,10 @@ import './components/site-header/site-header.makeswift';
 import './components/slideshow/slideshow.makeswift';
 import './components/sticky-sidebar/sticky-sidebar.makeswift';
 import './components/product-detail/register';
-
 import './components/site-theme/register';
+// SMCC custom start
+import '~/custom/components/product-faqs/register';
+// SMCC custom end
 
 import { MakeswiftComponentType } from '@makeswift/runtime';
 

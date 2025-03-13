@@ -452,6 +452,10 @@
                 "previous": "Recensioni precedenti",
                 "next": "Prossime recensioni"
             }
+        },
+        "FAQ": {
+            "heading": "Frequently Asked Questions",
+            "loadMore": "Mostra altro"
         }
     },
     "WebPages": {
