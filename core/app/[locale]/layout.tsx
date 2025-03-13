@@ -111,10 +111,10 @@ export default async function RootLayout({ params, children }: Props) {
           <NextIntlClientProvider locale={locale} messages={messages}>
             <NuqsAdapter>
               <Providers>
-              {toastNotificationCookieData && (
-                <CookieNotifications {...toastNotificationCookieData} />
-              )}
-              {children}
+                {toastNotificationCookieData && (
+                  <CookieNotifications {...toastNotificationCookieData} />
+                )}
+                {children}
               </Providers>
             </NuqsAdapter>
           </NextIntlClientProvider>

@@ -12,10 +12,6 @@ import './components/site-header/site-header.makeswift';
 import './components/slideshow/slideshow.makeswift';
 import './components/sticky-sidebar/sticky-sidebar.makeswift';
 import './components/product-detail/register';
-/* START MODIFIED CODE */
-// import '~/custom/components/image-compare-slider/register';
-// import '~/custom/components/team-members/register';
-/* END MODIFIED CODE */
 
 import './components/site-theme/register';
 

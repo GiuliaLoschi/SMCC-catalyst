@@ -91,6 +91,7 @@
     "@types/react-dom": "^19.0.3",
     "@types/react-google-recaptcha": "^2.1.9",
     "@types/react-headroom": "^3.2.3",
+    "@types/set-cookie-parser": "^2.4.10",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
     "dotenv": "^16.4.7",
