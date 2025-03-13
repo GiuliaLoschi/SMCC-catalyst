@@ -1,4 +1,4 @@
-import { Checkbox, Image, List, Shape, Slot, TextInput } from '@makeswift/runtime/controls';
+import { Checkbox, Group, List, Slot, TextInput } from '@makeswift/runtime/controls';
 
 import { runtime } from '~/lib/makeswift/runtime';
 
@@ -13,8 +13,9 @@ runtime.registerComponent(MakeswiftProductFaqs, {
   props: {
     faqs: List({
       label: 'FAQs',
-      type: Shape({
-        type: {
+      type: Group({
+        label: 'Question',
+        props: {
           question: TextInput({ label: 'Question', defaultValue: 'Question' }),
           answer: TextInput({ label: 'Answer', defaultValue: 'Answer' }),
           richContent: Checkbox({ label: 'Use rich content slot', defaultValue: false }),
